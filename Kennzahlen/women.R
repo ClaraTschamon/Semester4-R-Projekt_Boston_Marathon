@@ -18,26 +18,25 @@ numeric_times_in_seconds <- as.numeric(parsed_times)
 mean_time_in_seconds <- mean(Womens_Boston_Marathon_Winners$Time, na.rm = TRUE)
 cat(mean_time_in_seconds)
 
-formatted_mean_time <- mean(parsed_times, na.rm = TRUE)
+library(chron)
+meanTime <- mean(times(Womens_Boston_Marathon_Winners$Time))
 
 # Create a boxplot of the formatted times
-boxplot(numeric_times_in_seconds, 
+boxplot(times(Womens_Boston_Marathon_Winners$Time), 
         main = "Boston Marathon Winners", 
         xlab = "Time (hh:mm:ss)", 
         col = "lightblue",
         horizontal = TRUE)
 
+
 # Streudiagramm: Entfernung
 plot(Womens_Boston_Marathon_Winners$`Distance (KM)`, )
 
 # Streudiagramm: Zeit und Entfernung
-plot(numeric_times_in_seconds, Womens_Boston_Marathon_Winners$`Distance (KM)`)
+plot(parsed_times, Womens_Boston_Marathon_Winners$`Distance (KM)`)
 
 
 ## zahl der gewinner pro land
-# Load required libraries
-install.packages("ggplot2")
-
 library(ggplot2)
 
 # Erstelle ein data.frame mit den Länderzählungen
@@ -56,7 +55,7 @@ ggplot(df, aes(x = Country, y = Count)) +
 
 # Erstelle ein data.frame mit den Jahreszahlen und den Geschwindigkeiten
 df <- data.frame(Jahr = Womens_Boston_Marathon_Winners$Year, 
-                 Geschwindigkeit = numeric_times_in_seconds)
+                 Geschwindigkeit = times(Womens_Boston_Marathon_Winners$Time))
 
 # Erstelle das Liniendiagramm
 ggplot(df, aes(x = Jahr, y = Geschwindigkeit)) +
