@@ -1,0 +1,117 @@
+---
+title: "Kennzahlen Frauen"
+---
+
+```{r}
+# Datensatz importieren
+library(readr)
+Womens_Boston_Marathon_Winners <- read_csv("../Womens_Boston_Marathon_Winners.csv", 
+    col_types = cols(Time = col_time(format = "%H:%M:%S")))
+```
+
+#### Durchschnittsdistanz
+Anmerkung: Die Distanz der Frauen in der Tabelle ist jedes Jahr die Selbe. Bei den Männer variiert sie etwas. Trotzdem haben wir die Distanz der Frauen trotzdem dargestellt.
+``` {r}
+meanDistance <- mean(Womens_Boston_Marathon_Winners$`Distance (KM)`, na.rm=TRUE)
+
+meanDistance
+```
+
+
+#### Boxplot der Distanz
+Anmerkung: Man sieht, dass es keine Abweichungen gibt.
+```{r}
+boxplot(Womens_Boston_Marathon_Winners$`Distance (KM)`, horizontal=TRUE)
+```
+
+#### Durchschnittszeit
+```{r}
+library(chron)
+# mean time is 02:35:09
+meanTime <- mean(times(Womens_Boston_Marathon_Winners$Time))
+meanTime
+```
+
+
+#### Boxplot der total gebrauchten Zeit
+```{r}
+# Boxplot of time
+data <- as.POSIXct(Womens_Boston_Marathon_Winners$Time, origin=cut(Sys.time(), "hours"))
+
+boxplot(data, 
+        main = "Boston Marathon Winners (Women)",
+        xlab = "Time",
+        pars=list(xaxt="n"), 
+        col="lightblue", 
+        horizontal = TRUE)
+
+axis.POSIXct(1, at=pretty(data), format="%H:%M:%S", las=2)
+```
+
+#### Durchschnittsgeschwindigkeit in Minuten pro Kilometer
+```{r}
+meanSpeed <- meanTime/meanDistance
+meanSpeed 
+```
+
+
+#### Boxplot der Geschwindigkeit in Minuten pro Kilometer
+```{r}
+time_seconds <- Womens_Boston_Marathon_Winners$Time / Womens_Boston_Marathon_Winners$`Distance (KM)`
+time_formatted <- format(as.POSIXct(time_seconds, origin = "1970-01-01"), format = "%H:%M:%S")
+
+parsed_times <- strptime(Womens_Boston_Marathon_Winners$Time, format="%H:%M:%S")
+parsed_times
+
+###noch nicht fertig...
+
+```
+
+#### Streudiagramm: zurückgelegte Entfernung
+```{r}
+plot(Womens_Boston_Marathon_Winners$`Distance (KM)`, )
+```
+
+#### Streudiagramm: Totale total gebrauchte Zeit im Vergleich zur Entfernung
+```{r}
+plot(times(Womens_Boston_Marathon_Winners$Time), 
+     Womens_Boston_Marathon_Winners$`Distance (KM)`,
+     xlab = "Time",
+     ylab = "Distance")
+```
+
+#### Balkendiagramm welches die Zahl der Gewinner pro Land zeigt
+```{r}
+library(ggplot2)
+
+# Erstellen eines data.frame mit den Länderzählungen
+country_counts <- table(Womens_Boston_Marathon_Winners$Country)
+
+df <- data.frame(Country = names(country_counts), Count = as.numeric(country_counts))
+
+# Erstellen des Balkendiagramms
+ggplot(df, aes(x = Country, y = Count)) +
+  geom_bar(stat = "identity") +
+  xlab("Land") +
+  ylab("Häufigkeit") +
+  ggtitle("Häufigkeit der Länder der Gewinnerinnen") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+#### Liniendiagramm welches die total gebrauchte Zeit im Vergleich zu den Jahreszahlen anzeigt
+```{r}
+# Erstelle ein data.frame mit den Jahreszahlen und den Geschwindigkeiten
+df <- data.frame(Jahr = Womens_Boston_Marathon_Winners$Year, 
+                 Geschwindigkeit = Womens_Boston_Marathon_Winners$Time)
+
+# Erstelle das Liniendiagramm
+ggplot(df, aes(x = Jahr, y = Geschwindigkeit)) +
+  geom_line() +
+  xlab("Jahr") +
+  ylab("Zeit") +
+  ggtitle("Zeit im Vergleich zur Jahreszahl") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+     

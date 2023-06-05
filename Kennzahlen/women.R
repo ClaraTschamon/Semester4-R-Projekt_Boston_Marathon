@@ -1,6 +1,4 @@
-# Durchschnittsgeschwindigkeit in minuten/km
-
-rnorm(Womens_Boston_Marathon_Winners$`Distance (KM)`)
+#v <- rnorm(Womens_Boston_Marathon_Winners$`Distance (KM)`) //keine ahnung warum ich das gemacht habe
 
 
 # mean ist 42.2km
@@ -9,31 +7,39 @@ meanDistance <- mean(Womens_Boston_Marathon_Winners$`Distance (KM)`, na.rm=TRUE)
 # boxplot zeigt, dass es keine abweichungen gibt. in jedem jahr wurden 42.2 km gerannt
 boxplot(Womens_Boston_Marathon_Winners$`Distance (KM)`)
 
-##############################################################
 
 parsed_times <- strptime(Womens_Boston_Marathon_Winners$Time, format="%H:%M:%S")
 
-numeric_times_in_seconds <- as.numeric(parsed_times)
-
-mean_time_in_seconds <- mean(Womens_Boston_Marathon_Winners$Time, na.rm = TRUE)
-cat(mean_time_in_seconds)
 
 library(chron)
+# mean time is 02:35:09
 meanTime <- mean(times(Womens_Boston_Marathon_Winners$Time))
 
-# Create a boxplot of the formatted times
-boxplot(times(Womens_Boston_Marathon_Winners$Time), 
-        main = "Boston Marathon Winners", 
-        xlab = "Time (hh:mm:ss)", 
-        col = "lightblue",
+# Durchschnittsgeschwindigkeit in minuten/km = 3min 41sec
+mean <- meanTime/meanDistance
+
+# Boxplot of time
+data <- as.POSIXct(Womens_Boston_Marathon_Winners$Time, origin=cut(Sys.time(), "hours"))
+
+boxplot(data, 
+        main = "Boston Marathon Winners (Women)",
+        xlab = "Time",
+        pars=list(xaxt="n"), 
+        col="lightblue", 
         horizontal = TRUE)
+
+axis.POSIXct(1, at=pretty(data), format="%H:%M:%S", las=2)
 
 
 # Streudiagramm: Entfernung
 plot(Womens_Boston_Marathon_Winners$`Distance (KM)`, )
 
 # Streudiagramm: Zeit und Entfernung
-plot(parsed_times, Womens_Boston_Marathon_Winners$`Distance (KM)`)
+plot(times(Womens_Boston_Marathon_Winners$Time), 
+     Womens_Boston_Marathon_Winners$`Distance (KM)`,
+     xlab = "Time",
+     ylab = "Distance")
+
 
 
 ## zahl der gewinner pro land
@@ -55,16 +61,20 @@ ggplot(df, aes(x = Country, y = Count)) +
 
 # Erstelle ein data.frame mit den Jahreszahlen und den Geschwindigkeiten
 df <- data.frame(Jahr = Womens_Boston_Marathon_Winners$Year, 
-                 Geschwindigkeit = times(Womens_Boston_Marathon_Winners$Time))
+                 Geschwindigkeit = Womens_Boston_Marathon_Winners$Time)
 
 # Erstelle das Liniendiagramm
 ggplot(df, aes(x = Jahr, y = Geschwindigkeit)) +
   geom_line() +
   xlab("Jahr") +
-  ylab("Geschwindigkeit") +
-  ggtitle("Geschwindigkeit im Vergleich zur Jahreszahl") +
+  ylab("Zeit") +
+  ggtitle("Zeit im Vergleich zur Jahreszahl") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 
+##TODO: 
+#- eventuell irgendwas mit regression!
+#- standardabweichung für geschwindigkeit in minuten/km
+#- konfidenzintervall in minuten/km
 
 
