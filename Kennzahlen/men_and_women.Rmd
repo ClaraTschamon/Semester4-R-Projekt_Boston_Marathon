@@ -1,0 +1,80 @@
+---
+title: "Mens and Womens Boston Marathon Winners"
+authos: "Ida Mazinger"
+date: "06.06.2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("lubridate")
+library("hms")
+library(ggplot2)
+library(dplyr)
+# tinytex::install_tinytex()
+all_data <- read.csv("../Mens_And_Womens_Boston_Marathon_Winners.csv")
+```
+
+## Geschwindigkeiten
+```{r}
+all_times <- format(as.POSIXct(strptime(all_data$Time, format="%H:%M:%S")), 
+                    format = "%H:%M:%S")
+
+all_times_hms <- as_hms(all_times)
+
+all_times_in_seconds <- seconds(all_times_hms)
+all_times_in_minutes <- as.numeric(all_times_in_seconds / 60)
+
+all_speeds <- all_times_in_minutes / all_data$Distance..KM.
+```
+
+### Durchschnitt:
+``` {r}
+mean_speeds <- mean(all_speeds, na.rm=TRUE)
+mean_speeds
+```
+Die Durchschnittsgeschwindigkeit beträgt etwa `r round(mean_speeds, 2)` min/km.
+
+### Median:
+```{r}
+median_speeds = median(all_speeds, na.rm = TRUE)
+median_speeds
+```
+Der Median beträgt etwa `r round(median_speeds, 2)` min/km.
+
+### Minimum und Maximum:
+```{r}
+min_speed = min(all_speeds, na.rm = TRUE)
+min_speed
+max_speed = max(all_speeds, na.rm = TRUE)
+max_speed
+```
+Die schnellste Geschwindigkeit beträgt etwa `r round(min_speed, 2)` min/km. 
+Die langsamste Geschwindigkeit beträgt etwa `r round(max_speed, 2)` min/km. 
+
+### Boxplot der Geschwindigkeiten:
+```{r}
+boxplot(all_speeds, type=1, col=c('yellow'))
+```
+
+### Jahreszahl im Vergleich zu Geschwindigkeit
+```{r}
+barplot(all_speeds, col = rainbow(250), main = "Geschwindigkeiten im Verlauf der Jahre")
+```
+
+
+## Beziehung zwischen Zeit und Entfernung
+```{r}
+# todo
+
+```
+
+
+## Anzahl Gewinner pro Land
+```{r}
+frequency <- table(all_data$Country, exclude = c(NULL, ""))
+df <- data.frame(Land = names(frequency), Häufigkeit = as.vector(unname(frequency)))
+df <- arrange(df, desc(frequency))
+df
+#pie(df_filtered$Frequency.Freq, labels = df_filtered$Country, main = "Wins by Country")
+```
