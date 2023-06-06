@@ -1,0 +1,41 @@
+---
+title: "Mens and Womens Boston Marathon Winners"
+authos: "Ida Mazinger"
+date: "06.06.2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("lubridate")
+library("hms")
+# tinytex::install_tinytex()
+all_data <- read.csv("../Mens_And_Womens_Boston_Marathon_Winners.csv")
+```
+
+## Geschwindigkeiten
+
+```{r}
+all_times <- format(as.POSIXct(strptime(all_data$Time, format="%H:%M:%S")), 
+                    format = "%H:%M:%S")
+
+all_times_hms <- as_hms(all_times)
+
+all_times_in_seconds <- seconds(all_times_hms)
+all_times_in_minutes <- as.numeric(all_times_in_seconds / 60)
+
+all_speeds <- all_times_in_minutes / all_data$Distance..KM.
+```
+
+### Durchschnitt:
+``` {r}
+mean_speeds <- mean(all_speeds, na.rm=TRUE)
+mean_speeds
+```
+
+Die Durchschnittsgeschwindigkeit beträgt etwa `r round(mean_speeds, 2)` Minuten pro Kilometer.
+
+### Boxplot der Geschwindigkeiten:
+```{r}
+boxplot(all_speeds, type=1, col=c('yellow'))
+```

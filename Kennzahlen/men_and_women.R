@@ -1,3 +1,25 @@
+library("lubridate")
+all_times <- format(as.POSIXct(strptime(all_data$Time, format="%H:%M:%S")), format = "%H:%M:%S")
+all_times
+
+library("hms")
+all_times_hms <- as_hms(all_times)
+
+all_times_in_seconds <- seconds(all_times_hms)
+all_times_in_minutes <- as.numeric(all_times_in_seconds / 60)
+
+all_speeds <- all_times_in_minutes / all_data$Distance..KM.
+
+mean_speeds <- mean(all_speeds, na.rm=TRUE)
+mean_speeds
+
+
+
+
+
+
+
+
 # Durchschnittsgeschwindigkeit in minuten/km
 
 rnorm(all_data$Distance..KM.)
@@ -13,7 +35,7 @@ boxplot(all_data$Distance..KM.)
 
 parsed_times <- strptime(all_data$Time, format="%H:%M:%S")
 
-numeric_times_in_seconds <- as.numeric(parsed_times)
+numeric_times_in_seconds <- as.numeric(parsed_times)#
 
 mean_time_in_seconds <- mean(all_data$Time, na.rm = TRUE)
 cat(mean_time_in_seconds)
