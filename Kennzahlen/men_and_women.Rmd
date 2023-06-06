@@ -1,6 +1,6 @@
 ---
 title: "Mens and Womens Boston Marathon Winners"
-authos: "Ida Mazinger"
+author: "Ida Mazinger"
 date: "06.06.2023"
 output: pdf_document
 ---
@@ -8,6 +8,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library("lubridate")
+library("chron")
 library("hms")
 library(ggplot2)
 library(dplyr)
@@ -30,7 +31,7 @@ all_speeds <- all_times_in_minutes / all_data$Distance..KM.
 
 ### Durchschnitt:
 ``` {r}
-mean_speeds <- mean(all_speeds, na.rm=TRUE)
+mean_speeds <- mean(all_speeds, na.rm = TRUE)
 mean_speeds
 ```
 Die Durchschnittsgeschwindigkeit beträgt etwa `r round(mean_speeds, 2)` min/km.
@@ -54,12 +55,21 @@ Die langsamste Geschwindigkeit beträgt etwa `r round(max_speed, 2)` min/km.
 
 ### Boxplot der Geschwindigkeiten:
 ```{r}
-boxplot(all_speeds, type=1, col=c('yellow'))
+boxplot(all_speeds, type=1, col=c('yellow'), horizontal = TRUE)
 ```
 
 ### Jahreszahl im Vergleich zu Geschwindigkeit
 ```{r}
-barplot(all_speeds, col = rainbow(250), main = "Geschwindigkeiten im Verlauf der Jahre")
+# barplot(all_speeds, col = rainbow(250), main = "Geschwindigkeiten im Verlauf der Jahre")
+all_speeds_df <- data.frame(Jahr = all_data$Year, 
+                            Geschwindigkeit = all_speeds)
+# todo wenn mehrere Werte pro Jahr: Durchschnitt
+ggplot(all_speeds_df, aes(x = Jahr, y = Geschwindigkeit)) +
+  geom_line() +
+  xlab("Jahr") +
+  ylab("Geschwindigkeit") +
+  ggtitle("Geschwindigkeiten im Verlauf der Jahre") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 
@@ -77,4 +87,21 @@ df <- data.frame(Land = names(frequency), Häufigkeit = as.vector(unname(frequen
 df <- arrange(df, desc(frequency))
 df
 #pie(df_filtered$Frequency.Freq, labels = df_filtered$Country, main = "Wins by Country")
+```
+
+
+## Streudiagramm?
+Linie Durchschnittsgeschwindigkeit
+Punkte von Geschwindigkeiten v. Frauen und Männern (unterschiedliche Farben)
+ab Jahr von ca. 1960 wenn Frauen auch dabei sind
+```{r}
+# todo
+
+```
+
+
+## Standardabweichungen
+```{r}
+# todo
+
 ```
