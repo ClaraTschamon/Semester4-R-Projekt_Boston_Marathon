@@ -55,13 +55,13 @@ meanSpeed
 ```
 
 
-#### Boxplot der Geschwindigkeit in Minuten pro Kilometer
+#### Boxplot der Zeit in Minuten pro Kilometer
 ```{r}
-time_seconds <- Womens_Boston_Marathon_Winners$Time / Womens_Boston_Marathon_Winners$`Distance (KM)`
-time_formatted <- format(as.POSIXct(time_seconds, origin = "1970-01-01"), format = "%H:%M:%S")
+##time_seconds <- Womens_Boston_Marathon_Winners$Time / Womens_Boston_Marathon_Winners$`Distance (KM)`
+##time_formatted <- format(as.POSIXct(time_seconds, origin = "1970-01-01"), format = "%H:%M:%S")
 
-parsed_times <- strptime(Womens_Boston_Marathon_Winners$Time, format="%H:%M:%S")
-parsed_times
+##parsed_times <- strptime(Womens_Boston_Marathon_Winners$Time, format="%H:%M:%S")
+##parsed_times
 
 ###noch nicht fertig...
 
@@ -76,8 +76,8 @@ plot(Womens_Boston_Marathon_Winners$`Distance (KM)`, )
 ```{r}
 plot(times(Womens_Boston_Marathon_Winners$Time), 
      Womens_Boston_Marathon_Winners$`Distance (KM)`,
-     xlab = "Time",
-     ylab = "Distance")
+     xlab = "Zeit",
+     ylab = "Distanz")
 ```
 
 #### Balkendiagramm welches die Zahl der Gewinner pro Land zeigt
