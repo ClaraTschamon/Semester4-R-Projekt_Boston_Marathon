@@ -7,56 +7,94 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+# Libraries setzten
 library("lubridate")
 library("chron")
 library("hms")
 library(ggplot2)
 library(dplyr)
-# tinytex::install_tinytex()
+
+# Datensätze importieren
 all_data <- read.csv("../Mens_And_Womens_Boston_Marathon_Winners.csv")
+womens_data <- read.csv("../Womens_Boston_Marathon_Winners.csv")
+mens_data <- read.csv("../Mens_Boston_Marathon_Winners.csv")
 ```
 
 ## Geschwindigkeiten
+Alle Geschwindigkeitsangaben sind in Minuten pro Kilometer.
 ```{r}
+# Geschwindigkeiten von Männern und Frauen
 all_times <- format(as.POSIXct(strptime(all_data$Time, format="%H:%M:%S")), 
                     format = "%H:%M:%S")
-
-all_times_hms <- as_hms(all_times)
-
-all_times_in_seconds <- seconds(all_times_hms)
+all_times_hms <- as_hms(all_times) # Umwandlung in Stunden-Minuten-Sekunden
+all_times_in_seconds <- lubridate::seconds(all_times_hms)
 all_times_in_minutes <- as.numeric(all_times_in_seconds / 60)
-
 all_speeds <- all_times_in_minutes / all_data$Distance..KM.
+all_speeds <- c(all_speeds)[!(is.null(all_speeds) | is.na(all_speeds) | all_speeds == "")]
+all_speeds
+
+# Geschwindigkeiten von Frauen
+womens_times <- format(as.POSIXct(strptime(womens_data$Time, format = "%H:%M:%S")), 
+                    format = "%H:%M:%S")
+womens_times_hms <- as_hms(womens_times) # Umwandlung in Stunden-Minuten-Sekunden
+womens_times_in_seconds <- lubridate::seconds(womens_times_hms)
+womens_times_in_minutes <- as.numeric(womens_times_in_seconds / 60)
+womens_speeds <- womens_times_in_minutes / womens_data$Distance..KM.
+
+# Geschwindigkeiten von Männern
+mens_times <- format(as.POSIXct(strptime(mens_data$Time, format="%H:%M:%S")), 
+                    format = "%H:%M:%S")
+mens_times_hms <- as_hms(mens_times) # Umwandlung in Stunden-Minuten-Sekunden
+mens_times_in_seconds <- lubridate::seconds(mens_times_hms)
+mens_times_in_minutes <- as.numeric(mens_times_in_seconds / 60)
+mens_speeds <- mens_times_in_minutes / mens_data$Distance..KM.
 ```
 
 ### Durchschnitt:
 ``` {r}
 mean_speeds <- mean(all_speeds, na.rm = TRUE)
-mean_speeds
+mean_womens_speeds <- mean(womens_speeds, na.rm = TRUE)
+mean_mens_speeds <- mean(mens_speeds, na.rm = TRUE)
+diff_means <- mean_mens_speeds - mean_womens_speeds
 ```
-Die Durchschnittsgeschwindigkeit beträgt etwa `r round(mean_speeds, 2)` min/km.
+Die Durchschnittsgeschwindigkeit beträgt etwa `r round(mean_speeds, 2)` min/km. Die Durchschnittsgeschwindigkeit der Frauen beträgt etwa `r round(mean_womens_speeds, 2)` min/km. Die Durchschnittsgeschwindigkeit der Männer beträgt etwa `r round(mean_mens_speeds, 2)` min/km. Männer sind im Schnitt um `r round(diff_means,  2)` min/km schneller.
 
 ### Median:
 ```{r}
-median_speeds = median(all_speeds, na.rm = TRUE)
-median_speeds
+median_speeds <- median(all_speeds, na.rm = TRUE)
+median_womens_speeds <- median(womens_speeds, na.rm = TRUE)
+median_mens_speeds <- median(mens_speeds, na.rm = TRUE)
+diff_median <- abs(mean_womens_speeds -  mean_mens_speeds)
 ```
-Der Median beträgt etwa `r round(median_speeds, 2)` min/km.
+Der Median beträgt etwa `r round(median_speeds, 2)` min/km. Der Median der Frauen beträgt etwa `r round(median_womens_speeds, 2)` min/km. Der Median der Männer beträgt etwa `r round(median_speeds, 2)` min/km. Der Unterschied zwischen den Medianen beträgt `r round(diff_median, 2)` min/km. 
 
 ### Minimum und Maximum:
 ```{r}
-min_speed = min(all_speeds, na.rm = TRUE)
-min_speed
-max_speed = max(all_speeds, na.rm = TRUE)
-max_speed
+min_speed <- min(all_speeds, na.rm = TRUE)
+min_womens_speed <- min(womens_speeds, na.rm = TRUE)
+min_mens_speed <- min(mens_speeds, na.rm = TRUE)
+# schnellste Geschwindigkeit entspricht der der Männer:
+min_speed == min_mens_speed
+
+max_speed <- max(all_speeds, na.rm = TRUE)
+max_womens_speed <- max(womens_speeds, na.rm = TRUE)
+max_mens_speed <- max(mens_speeds, na.rm = TRUE)
+# langsamste Geschwindigkeit entspricht der der Frauen:
+max_speed == max_womens_speed
 ```
-Die schnellste Geschwindigkeit beträgt etwa `r round(min_speed, 2)` min/km. 
-Die langsamste Geschwindigkeit beträgt etwa `r round(max_speed, 2)` min/km. 
+Die schnellste Geschwindigkeit der Frauen beträgt etwa `r round(min_womens_speed, 2)` min/km. Die schnellste Geschwindigkeit der Männer beträgt etwa `r round(min_mens_speed, 2)` min/km und ist auch die generelle minimale Geschwindigkeit. 
+
+Die langsamste Geschwindigkeit der Frauen beträgt etwa `r round(max_womens_speed, 2)` min/km und ist auch die generelle maximale Geschwindigkeit.
+Die langsamste Geschwindigkeit der Männer beträgt etwa `r round(max_mens_speed, 2)` min/km.
 
 ### Boxplot der Geschwindigkeiten:
 ```{r}
+quartiles_all_speeds <- quantile(all_speeds, probs = c(0, 0.25, 0.5, 0.75, 1))
+summary_all_speeds <- summary(all_speeds)
 boxplot(all_speeds, type=1, col=c('yellow'), horizontal = TRUE)
 ```
+Der Boxplot zeigt, dass 50 % der Abschnittsgeschwindigkeiten zwischen ca. 3,18 min/km und 3,64 min/km.
 
 ### Jahreszahl im Vergleich zu Geschwindigkeit
 ```{r}
