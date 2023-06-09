@@ -31,8 +31,7 @@ all_times_hms <- as_hms(all_times) # Umwandlung in Stunden-Minuten-Sekunden
 all_times_in_seconds <- lubridate::seconds(all_times_hms)
 all_times_in_minutes <- as.numeric(all_times_in_seconds / 60)
 all_speeds <- all_times_in_minutes / all_data$Distance..KM.
-all_speeds <- c(all_speeds)[!(is.null(all_speeds) | is.na(all_speeds) | all_speeds == "")]
-all_speeds
+filtered_all_speeds <- c(all_speeds)[!(is.null(all_speeds) | is.na(all_speeds) | all_speeds == "")]
 
 # Geschwindigkeiten von Frauen
 womens_times <- format(as.POSIXct(strptime(womens_data$Time, format = "%H:%M:%S")), 
@@ -90,11 +89,12 @@ Die langsamste Geschwindigkeit der Männer beträgt etwa `r round(max_mens_speed
 
 ### Boxplot der Geschwindigkeiten:
 ```{r}
-quartiles_all_speeds <- quantile(all_speeds, probs = c(0, 0.25, 0.5, 0.75, 1))
+quartiles_all_speeds <- quantile(filtered_all_speeds, probs = c(0, 0.25, 0.5, 0.75, 1))
 summary_all_speeds <- summary(all_speeds)
+summary_all_speeds
 boxplot(all_speeds, type=1, col=c('yellow'), horizontal = TRUE)
 ```
-Der Boxplot zeigt, dass 50 % der Abschnittsgeschwindigkeiten zwischen ca. 3,18 min/km und 3,64 min/km.
+Der Boxplot zeigt, dass 50 % der Abschnittsgeschwindigkeiten zwischen ca. 3,18 min/km und 3,64 min/km liegen. Der Boxplot ist rechtsschief, das bedeutet, dass die meisten  Gewinner eine recht schnell gelaufen sind (bis zu etwa 4,2 min/km) und nur ein paar eher langsam. Da die Maximalgeschwindigkeit der Männer bei etwa `r round(max_mens_speed, 2)` liegt, können wir davon ausgehen, dass die meisten Ausreißer vom Marathond der Frauen stammen.
 
 ### Jahreszahl im Vergleich zu Geschwindigkeit
 ```{r}
@@ -109,7 +109,26 @@ ggplot(all_speeds_df, aes(x = Jahr, y = Geschwindigkeit)) +
   ggtitle("Geschwindigkeiten im Verlauf der Jahre") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+Das Liniendiagramm lässt klar erkennen, dass die Geschwindigkeit im Laufe der ersten Jahre insgesamt stark abgenommen hat. Ab dem Jahr 1966 gibt es auch Daten über Frauenläufe, daher ist der Graf ab hier kaum leserlich. Im folgenden nehmen wir daher alle Daten ab 1966, berechnen jeweils den Durchschnitt und stellen diesen dar:
+```{r}
+mens_data_since_1966 <- subset(mens_data, Year >= 1966)
+filtered_womens_data <- womens_data[!(is.na(womens_data$Year) | is.nan(womens_data$Year)), ]
+merged_data <- merge(mens_data_since_1966, filtered_womens_data, by = "Year")
+merged_data$Speed.x <- as.numeric(lubridate::seconds(as_hms(format(as.POSIXct(strptime(merged_data$Time.x, format="%H:%M:%S")), format = "%H:%M:%S"))) / 60) / merged_data$Distance..KM..x
+merged_data$Speed.y <- as.numeric(lubridate::seconds(as_hms(format(as.POSIXct(strptime(merged_data$Time.y, format="%H:%M:%S")), format = "%H:%M:%S"))) / 60) / merged_data$Distance..KM..y
+mean_speed_since_1966 <- rowMeans(merged_data[, c("Speed.x", "Speed.y")], na.rm = TRUE)
 
+mean_speeds_since_1966_df <- data.frame(Jahr = merged_data$Year, 
+                            Geschwindigkeit = mean_speed_since_1966)
+
+ggplot(mean_speeds_since_1966_df, aes(x = Jahr, y = Geschwindigkeit)) +
+  geom_line() +
+  xlab("Jahr") +
+  ylab("Geschwindigkeit") +
+  ggtitle("Geschwindigkeiten im Verlauf der Jahre") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+Im neuen Liniendiagramm sieht man die Durchschnittsabschnittsgeschwindigkeit von Männern und Frauen seit 1966.
 
 ## Beziehung zwischen Zeit und Entfernung
 ```{r}
@@ -126,17 +145,27 @@ df <- arrange(df, desc(frequency))
 df
 #pie(df_filtered$Frequency.Freq, labels = df_filtered$Country, main = "Wins by Country")
 ```
-
+In der Tabelle wird ersichtlich, dass die meisten Gewinner aus den Vereinigten Staaten, Kenya und Kanada stammen.
 
 ## Streudiagramm?
 Linie Durchschnittsgeschwindigkeit
 Punkte von Geschwindigkeiten v. Frauen und Männern (unterschiedliche Farben)
 ab Jahr von ca. 1960 wenn Frauen auch dabei sind
 ```{r}
-# todo
+lm_model <- lm(Speed.y ~ Speed.x, data = merged_data)
 
+predicted_values <- predict(lm_model)
+plot(
+  merged_data$Speed.x, 
+  merged_data$Speed.y, 
+  main = "Streudiagramm mit Regressionslinie",
+  xlab = "Geschwindigkeiten Männer",
+  ylab = "Geschwindigkeiten Frauen")
+abline(lm_model, col = "red")
+covariance <- cov(merged_data$Speed.x, merged_data$Speed.y)
+correlation <- cor(merged_data$Speed.x, merged_data$Speed.y)
 ```
-
+Im Streudiagramm sieht man, wie sich die Geschwindigkeiten von Frauen und Männer zueinander verhalten. Interessant ist, dass die Leistungen sich leicht ähnlich verhalten. In Jahren, in denen Männer eher schwach abgeschnitten haben, was das auch bei den Frauen so und umgekehrt (siehe Regressionslinie). Die Kovarianz beträgt `r round(covariance, 4)`. Dies bedeutetet einen positiven Zusammenhang zwischen den Geschwindigkeiten. Der Korrelationskoeffizient beträgt `r round(correlation, 4)` und weist darauf hin, dass die Daten recht stark positiv korellieren.
 
 ## Standardabweichungen
 ```{r}
