@@ -132,8 +132,12 @@ Im neuen Liniendiagramm sieht man die Durchschnittsabschnittsgeschwindigkeit von
 
 ## Beziehung zwischen Zeit und Entfernung
 ```{r}
-# todo
-
+plot(
+  times(all_data$Time),
+  all_data$Distance..KM.,
+  main = "Streudiagramm Zeit im Verhältnis zur Entfernung",
+  xlab = "Zeit",
+  ylab = "Entfernung in km")
 ```
 
 
@@ -169,6 +173,6 @@ Im Streudiagramm sieht man, wie sich die Geschwindigkeiten von Frauen und Männe
 
 ## Standardabweichungen
 ```{r}
-# todo
-
+sd_all_speeds <- sd(all_speeds, na.rm= TRUE)
 ```
+Die Standardabweichung der Geschwindigkeiten beträgt `r sd_all_speeds` min/km.
