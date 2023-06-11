@@ -2,7 +2,10 @@
 title: "Mens Boston Marathon Winners"
 author: "Hilal Özalp"
 date: "10.06.2023"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 ###Excel Tabelle importieren
 ```{r}
@@ -79,16 +82,6 @@ boxplot(men_speeds, main = "Boxplot für Geschwindigkeiten der Männer", xlab = 
 
 ```
 
-###Boxplot für die Zeit
-```{r}
-timeData <- times(Mens_Boston_Marathon_Winners$Time)
-
-boxplot(timeData,
-        main ="Boston Marathon Winners (Men)",
-        xlab ="Time",
-        col = "lightblue",
-        horizontal = TRUE)
-```
 
 
 ###Gewinneranzahl pro Land
