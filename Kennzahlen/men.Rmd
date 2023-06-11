@@ -8,11 +8,20 @@ output: pdf_document
 ```{r}
 Mens_Boston_Marathon_Winners <-
   read.csv("C:/Users/Lenovo/Desktop/4.Semsester/Stochastik/R-Projekt/Daten/Mens_Boston_Marathon_Winners.csv")
+
+# Libraries setzten
+library("lubridate")
+library("chron")
+library("hms")
+library(ggplot2)
+library(dplyr)
 ```
+
 
 ###Durchschnittsdistanz der Männer in km - 41.5693548387097 
 ```{r}
-meanDistanceKm <- mean(Mens_Boston_Marathon_Winners$Distance..KM., na.rm = TRUE) meanDistanceKm
+meanDistanceKm <- mean(Mens_Boston_Marathon_Winners$Distance..KM., na.rm = TRUE)
+meanDistanceKm
 ```
 
 ###Boxplot für die Distanz
@@ -20,12 +29,54 @@ meanDistanceKm <- mean(Mens_Boston_Marathon_Winners$Distance..KM., na.rm = TRUE)
 boxplot(Mens_Boston_Marathon_Winners$Distance..KM., main = "Boxplot für die Distanz", horizontal = TRUE)
 ```
 
+Der Boxplot hier macht nicht viel Sinn, da man nicht erkennt wie viele Läufer welche Distanzen gelaufen sind.
+Aus diesem Grund eignet sich ein Balkendiagramm besser, da die Häufigkeit der Distanzen besser zu sehen sind.
+
+###Erstelle ein data.frame für die Distanzzählungen
+```{r}
+distance_counts <- table(Mens_Boston_Marathon_Winners$Distance..KM.)
+
+df <- data.frame(Distance = names(distance_counts), Count = as.numeric(distance_counts))
+df
+
+# Erstelle das Balkendiagramm
+ggplot(df, aes(x = Distance, y = Count)) +
+  geom_bar(stat = "identity") +
+  xlab("Distanz") +
+  ylab("Häufigkeit") +
+  ggtitle("Häufigkeit der Distanzen") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
 ###Durchschnittszeit der Männer - 02:21:31
 ```{r} 
-library(chron)
 
 meanTime <- mean(times(Mens_Boston_Marathon_Winners$Time))
 meanTime
+```
+
+
+#DurchschnittsGeschwindigkeit der Männer - 3 min 24 sek
+```{r} 
+meanSpeed <- meanTime/meanDistanceKm
+meanSpeed
+```
+
+#Boxplot für die Durchschnittgeschwindigkeit
+```{r} 
+# Geschwindigkeiten von den einzelnen Männern
+men_times <- format(as.POSIXct(strptime(Mens_Boston_Marathon_Winners$Time, format="%H:%M:%S")), 
+                    format = "%H:%M:%S")
+men_times_hms <- as_hms(men_times) # Umwandlung in Stunden-Minuten-Sekunden
+men_times_in_seconds <- lubridate::seconds(men_times_hms)
+men_times_in_minutes <- as.numeric(men_times_in_seconds / 60)
+men_speeds <- men_times_in_minutes / Mens_Boston_Marathon_Winners$Distance..KM.
+men_speeds
+
+# Boxplot für men_speeds erstellen
+boxplot(men_speeds, main = "Boxplot für Geschwindigkeiten der Männer", xlab = "Geschwindigkeit (Minuten pro Kilometer)", horizontal = TRUE)
+
 ```
 
 ###Boxplot für die Zeit
@@ -39,71 +90,53 @@ boxplot(timeData,
         horizontal = TRUE)
 ```
 
-###Durchschnittsgeschwindigkeit der Männer in min/km - 3 min 24 sek
-```{r}
-meanSpeed <- meanTime/meanDistanceKm
-meanSpeed
-```
-
-###Streudiagramm für die Entfernung
-```{r}
-plot(Mens_Boston_Marathon_Winners$Distance..KM., main = "Streudiagramm (Männer)")
-```
-
-###Streudiagramm für Zeit und Entfernung
-```{r}
-plot(parsed_times, Mens_Boston_Marathon_Winners$Distance..KM.)
-```
-
 
 ###Gewinneranzahl pro Land
 ```{r}
-library(ggplot2)
 
-#Datentabelle der Länderzählungen
-country_counts <- table(Mens_Boston_Marathon_Winners$Country)
+frequency <- table(Mens_Boston_Marathon_Winners$Country, exclude = c(NULL, ""))
+country_df <- data.frame(Land = names(frequency), Häufigkeit = as.vector(unname(frequency)))
+country_df <- arrange(country_df, desc(frequency))
+country_df
 
-df <- data.frame(Country = names(country_counts), Count = as.numeric(country_counts))
+# Abgekürzte Ländernamen erstellen
+abbreviated_names <- abbreviate(country_df$Land, minlength = 10)
 
-print(df)
+# Säulendiagramm mit abgekürzten Ländernamen erstellen
+barplot(country_df$Häufigkeit, main = "Säulendiagramm für Länder-Häufigkeit",
+        xlab = "Land", ylab = "Häufigkeit", cex.names = 0.8, ylim = c(0, max(country_df$Häufigkeit) + 1), 
+        las = 2, cex.axis = 0.8, cex.lab = 0.8, width = 0.8, space = 0.5, names.arg = abbreviated_names)
 
-#Balkendiagramm für Gewinneranzahl pro Land
-ggplot(df, aes(x = Country, y = Count)) +
-  geom_bar(stat = "identity") +
-  xlab("Land") +
-  ylab("Häufigkeit") +
-  ggtitle("Häufigkeit der Länder der Gewinner") +
-  theme(axis.text = element_text(angle = 45, hjust = 1))
 
 ```
 Ergebnis des Balkendiagramms: Die meisten Gewinner kommen aus den USA mit 43, gefolgt von Kenya mit 24 und Canada mit 16
 
 
+#Vergleich der Geschwindigkeiten und Entfernung
 ```{r}
+# Erstelle ein data.frame mit den Jahreszahlen, Zeit und Distanz
+df <- data.frame(Jahr = Mens_Boston_Marathon_Winners$Year, Zeit = times(Mens_Boston_Marathon_Winners$Time), Distanz = Mens_Boston_Marathon_Winners$Distance..KM.)
+
+df
+
+#Geschwindigkeit berechnen und anschließend und hinzufügen
+# Geschwindigkeiten von Männern
+men_times <- format(as.POSIXct(strptime(Mens_Boston_Marathon_Winners$Time, format="%H:%M:%S")), 
+                    format = "%H:%M:%S")
+men_times_hms <- as_hms(men_times) # Umwandlung in Stunden-Minuten-Sekunden
+men_times_in_seconds <- lubridate::seconds(men_times_hms)
+men_times_in_minutes <- as.numeric(men_times_in_seconds / 60)
+men_speeds <- men_times_in_minutes / Mens_Boston_Marathon_Winners$Distance..KM.
+
+df <- data.frame(df, Geschwindigkeit = men_speeds)
+df
+
+
+# Erstelle Streudiagramm
+plot(df$Geschwindigkeit, df$Distanz, xlab = "Geschwindigkeit", ylab = "Distanz", main ="Vergleich zwischen der Geschwindigkeit und der Entfernung")
 
 ```
-
-
-
-
-```{r}
-```
-
-
-
-```{r}
-```
-
-
-```{r}
-```
-
-
-
-```{r}
-```
-
-
+Man sieht, dass man beim 42.2 Marathon ca. bei ca 3.1 min/km eine Häufung hat - Die läufer waran beim längeren Marathon laut Streudiagramm schneller als bei den anderen.
 
 
 
