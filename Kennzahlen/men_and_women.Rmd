@@ -22,7 +22,9 @@ mens_data <- read.csv("../Mens_Boston_Marathon_Winners.csv")
 ```
 
 ## Geschwindigkeiten
+
 Alle Geschwindigkeitsangaben sind in Minuten pro Kilometer.
+
 ```{r}
 # Geschwindigkeiten von Männern und Frauen
 all_times <- format(as.POSIXct(strptime(all_data$Time, format="%H:%M:%S")), 
@@ -51,24 +53,29 @@ mens_speeds <- mens_times_in_minutes / mens_data$Distance..KM.
 ```
 
 ### Durchschnitt:
-``` {r}
+
+```{r}
 mean_speeds <- mean(all_speeds, na.rm = TRUE)
 mean_womens_speeds <- mean(womens_speeds, na.rm = TRUE)
 mean_mens_speeds <- mean(mens_speeds, na.rm = TRUE)
 diff_means <- mean_mens_speeds - mean_womens_speeds
 ```
+
 Die Durchschnittsgeschwindigkeit beträgt etwa `r round(mean_speeds, 2)` min/km. Die Durchschnittsgeschwindigkeit der Frauen beträgt etwa `r round(mean_womens_speeds, 2)` min/km. Die Durchschnittsgeschwindigkeit der Männer beträgt etwa `r round(mean_mens_speeds, 2)` min/km. Männer sind im Schnitt um `r round(diff_means,  2)` min/km schneller.
 
 ### Median:
+
 ```{r}
 median_speeds <- median(all_speeds, na.rm = TRUE)
 median_womens_speeds <- median(womens_speeds, na.rm = TRUE)
 median_mens_speeds <- median(mens_speeds, na.rm = TRUE)
 diff_median <- abs(mean_womens_speeds -  mean_mens_speeds)
 ```
-Der Median beträgt etwa `r round(median_speeds, 2)` min/km. Der Median der Frauen beträgt etwa `r round(median_womens_speeds, 2)` min/km. Der Median der Männer beträgt etwa `r round(median_speeds, 2)` min/km. Der Unterschied zwischen den Medianen beträgt `r round(diff_median, 2)` min/km. 
+
+Der Median beträgt etwa `r round(median_speeds, 2)` min/km. Der Median der Frauen beträgt etwa `r round(median_womens_speeds, 2)` min/km. Der Median der Männer beträgt etwa `r round(median_speeds, 2)` min/km. Der Unterschied zwischen den Medianen beträgt `r round(diff_median, 2)` min/km.
 
 ### Minimum und Maximum:
+
 ```{r}
 min_speed <- min(all_speeds, na.rm = TRUE)
 min_womens_speed <- min(womens_speeds, na.rm = TRUE)
@@ -82,21 +89,24 @@ max_mens_speed <- max(mens_speeds, na.rm = TRUE)
 # langsamste Geschwindigkeit entspricht der der Frauen:
 max_speed == max_womens_speed
 ```
-Die schnellste Geschwindigkeit der Frauen beträgt etwa `r round(min_womens_speed, 2)` min/km. Die schnellste Geschwindigkeit der Männer beträgt etwa `r round(min_mens_speed, 2)` min/km und ist auch die generelle minimale Geschwindigkeit. 
 
-Die langsamste Geschwindigkeit der Frauen beträgt etwa `r round(max_womens_speed, 2)` min/km und ist auch die generelle maximale Geschwindigkeit.
-Die langsamste Geschwindigkeit der Männer beträgt etwa `r round(max_mens_speed, 2)` min/km.
+Die schnellste Geschwindigkeit der Frauen beträgt etwa `r round(min_womens_speed, 2)` min/km. Die schnellste Geschwindigkeit der Männer beträgt etwa `r round(min_mens_speed, 2)` min/km und ist auch die generelle minimale Geschwindigkeit.
+
+Die langsamste Geschwindigkeit der Frauen beträgt etwa `r round(max_womens_speed, 2)` min/km und ist auch die generelle maximale Geschwindigkeit. Die langsamste Geschwindigkeit der Männer beträgt etwa `r round(max_mens_speed, 2)` min/km.
 
 ### Boxplot der Geschwindigkeiten:
+
 ```{r}
 quartiles_all_speeds <- quantile(filtered_all_speeds, probs = c(0, 0.25, 0.5, 0.75, 1))
 summary_all_speeds <- summary(all_speeds)
 summary_all_speeds
 boxplot(all_speeds, type=1, col=c('yellow'), horizontal = TRUE)
 ```
-Der Boxplot zeigt, dass 50 % der Abschnittsgeschwindigkeiten zwischen ca. 3,18 min/km und 3,64 min/km liegen. Der Boxplot ist rechtsschief, das bedeutet, dass die meisten  Gewinner eine recht schnell gelaufen sind (bis zu etwa 4,2 min/km) und nur ein paar eher langsam. Da die Maximalgeschwindigkeit der Männer bei etwa `r round(max_mens_speed, 2)` liegt, können wir davon ausgehen, dass die meisten Ausreißer vom Marathond der Frauen stammen.
+
+Der Boxplot zeigt, dass 50 % der Abschnittsgeschwindigkeiten zwischen ca. 3,18 min/km und 3,64 min/km liegen. Der Boxplot ist rechtsschief, das bedeutet, dass die meisten Gewinner eine recht schnell gelaufen sind (bis zu etwa 4,2 min/km) und nur ein paar eher langsam. Da die Maximalgeschwindigkeit der Männer bei etwa `r round(max_mens_speed, 2)` liegt, können wir davon ausgehen, dass die meisten Ausreißer vom Marathond der Frauen stammen.
 
 ### Jahreszahl im Vergleich zu Geschwindigkeit
+
 ```{r}
 # barplot(all_speeds, col = rainbow(250), main = "Geschwindigkeiten im Verlauf der Jahre")
 all_speeds_df <- data.frame(Jahr = all_data$Year, 
@@ -109,7 +119,9 @@ ggplot(all_speeds_df, aes(x = Jahr, y = Geschwindigkeit)) +
   ggtitle("Geschwindigkeiten im Verlauf der Jahre") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 Das Liniendiagramm lässt klar erkennen, dass die Geschwindigkeit im Laufe der ersten Jahre insgesamt stark abgenommen hat. Ab dem Jahr 1966 gibt es auch Daten über Frauenläufe, daher ist der Graf ab hier kaum leserlich. Im folgenden nehmen wir daher alle Daten ab 1966, berechnen jeweils den Durchschnitt und stellen diesen dar:
+
 ```{r}
 mens_data_since_1966 <- subset(mens_data, Year >= 1966)
 filtered_womens_data <- womens_data[!(is.na(womens_data$Year) | is.nan(womens_data$Year)), ]
@@ -128,9 +140,11 @@ ggplot(mean_speeds_since_1966_df, aes(x = Jahr, y = Geschwindigkeit)) +
   ggtitle("Geschwindigkeiten im Verlauf der Jahre") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 Im neuen Liniendiagramm sieht man die Durchschnittsabschnittsgeschwindigkeit von Männern und Frauen seit 1966.
 
 ## Beziehung zwischen Zeit und Entfernung
+
 ```{r}
 plot(
   times(all_data$Time),
@@ -140,8 +154,8 @@ plot(
   ylab = "Entfernung in km")
 ```
 
-
 ## Anzahl Gewinner pro Land
+
 ```{r}
 frequency <- table(all_data$Country, exclude = c(NULL, ""))
 df <- data.frame(Land = names(frequency), Häufigkeit = as.vector(unname(frequency)))
@@ -149,12 +163,13 @@ df <- arrange(df, desc(frequency))
 df
 #pie(df_filtered$Frequency.Freq, labels = df_filtered$Country, main = "Wins by Country")
 ```
+
 In der Tabelle wird ersichtlich, dass die meisten Gewinner aus den Vereinigten Staaten, Kenya und Kanada stammen.
 
 ## Streudiagramm?
-Linie Durchschnittsgeschwindigkeit
-Punkte von Geschwindigkeiten v. Frauen und Männern (unterschiedliche Farben)
-ab Jahr von ca. 1960 wenn Frauen auch dabei sind
+
+Linie Durchschnittsgeschwindigkeit Punkte von Geschwindigkeiten v. Frauen und Männern (unterschiedliche Farben) ab Jahr von ca. 1960 wenn Frauen auch dabei sind
+
 ```{r}
 lm_model <- lm(Speed.y ~ Speed.x, data = merged_data)
 
@@ -169,10 +184,13 @@ abline(lm_model, col = "red")
 covariance <- cov(merged_data$Speed.x, merged_data$Speed.y)
 correlation <- cor(merged_data$Speed.x, merged_data$Speed.y)
 ```
+
 Im Streudiagramm sieht man, wie sich die Geschwindigkeiten von Frauen und Männer zueinander verhalten. Interessant ist, dass die Leistungen sich leicht ähnlich verhalten. In Jahren, in denen Männer eher schwach abgeschnitten haben, was das auch bei den Frauen so und umgekehrt (siehe Regressionslinie). Die Kovarianz beträgt `r round(covariance, 4)`. Dies bedeutetet einen positiven Zusammenhang zwischen den Geschwindigkeiten. Der Korrelationskoeffizient beträgt `r round(correlation, 4)` und weist darauf hin, dass die Daten recht stark positiv korellieren.
 
 ## Standardabweichungen
+
 ```{r}
 sd_all_speeds <- sd(all_speeds, na.rm= TRUE)
 ```
+
 Die Standardabweichung der Geschwindigkeiten beträgt `r sd_all_speeds` min/km.

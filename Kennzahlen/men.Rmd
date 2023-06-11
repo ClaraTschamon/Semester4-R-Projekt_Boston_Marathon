@@ -1,0 +1,127 @@
+---
+title: "Mens Boston Marathon Winners"
+author: "Hilal Özalp"
+date: "10.06.2023"
+output: pdf_document
+---
+###Excel Tabelle importieren
+```{r}
+Mens_Boston_Marathon_Winners <-
+  read.csv("C:/Users/Lenovo/Desktop/4.Semsester/Stochastik/R-Projekt/Daten/Mens_Boston_Marathon_Winners.csv")
+```
+
+###Durchschnittsdistanz der Männer in km - 41.5693548387097 
+```{r}
+meanDistanceKm <- mean(Mens_Boston_Marathon_Winners$Distance..KM., na.rm = TRUE) meanDistanceKm
+```
+
+###Boxplot für die Distanz
+```{r} 
+boxplot(Mens_Boston_Marathon_Winners$Distance..KM., main = "Boxplot für die Distanz", horizontal = TRUE)
+```
+
+###Durchschnittszeit der Männer - 02:21:31
+```{r} 
+library(chron)
+
+meanTime <- mean(times(Mens_Boston_Marathon_Winners$Time))
+meanTime
+```
+
+###Boxplot für die Zeit
+```{r}
+timeData <- times(Mens_Boston_Marathon_Winners$Time)
+
+boxplot(timeData,
+        main ="Boston Marathon Winners (Men)",
+        xlab ="Time",
+        col = "lightblue",
+        horizontal = TRUE)
+```
+
+###Durchschnittsgeschwindigkeit der Männer in min/km - 3 min 24 sek
+```{r}
+meanSpeed <- meanTime/meanDistanceKm
+meanSpeed
+```
+
+###Streudiagramm für die Entfernung
+```{r}
+plot(Mens_Boston_Marathon_Winners$Distance..KM., main = "Streudiagramm (Männer)")
+```
+
+###Streudiagramm für Zeit und Entfernung
+```{r}
+plot(parsed_times, Mens_Boston_Marathon_Winners$Distance..KM.)
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
