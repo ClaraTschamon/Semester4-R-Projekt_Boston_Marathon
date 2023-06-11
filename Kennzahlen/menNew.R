@@ -45,7 +45,7 @@ numeric_times_in_minutes <- numeric_times_in_seconds / 60
 #Boxplot für die Durchschnittszeit
 # Geschwindigkeiten von Männern
 men_times <- format(as.POSIXct(strptime(Mens_Boston_Marathon_Winners$Time, format="%H:%M:%S")), 
-                    format = "%H:%M:%S")
+                     format = "%H:%M:%S")
 men_times_hms <- as_hms(men_times) # Umwandlung in Stunden-Minuten-Sekunden
 men_times_in_seconds <- lubridate::seconds(men_times_hms)
 men_times_in_minutes <- as.numeric(men_times_in_seconds / 60)
@@ -100,3 +100,8 @@ df
 
 # Erstelle Streudiagramm
 plot(df$Geschwindigkeit, df$Distanz, xlab = "Geschwindigkeit", ylab = "Distanz", main ="Vergleich zwischen der Geschwindigkeit und der Entfernung")
+
+
+
+
+

@@ -56,13 +56,31 @@ plot(parsed_times, Mens_Boston_Marathon_Winners$Distance..KM.)
 ```
 
 
-
+###Gewinneranzahl pro Land
 ```{r}
+library(ggplot2)
+
+#Datentabelle der Länderzählungen
+country_counts <- table(Mens_Boston_Marathon_Winners$Country)
+
+df <- data.frame(Country = names(country_counts), Count = as.numeric(country_counts))
+
+print(df)
+
+#Balkendiagramm für Gewinneranzahl pro Land
+ggplot(df, aes(x = Country, y = Count)) +
+  geom_bar(stat = "identity") +
+  xlab("Land") +
+  ylab("Häufigkeit") +
+  ggtitle("Häufigkeit der Länder der Gewinner") +
+  theme(axis.text = element_text(angle = 45, hjust = 1))
+
 ```
-
+Ergebnis des Balkendiagramms: Die meisten Gewinner kommen aus den USA mit 43, gefolgt von Kenya mit 24 und Canada mit 16
 
 
 ```{r}
+
 ```
 
 
